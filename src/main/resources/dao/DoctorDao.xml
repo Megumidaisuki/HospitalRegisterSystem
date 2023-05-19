@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.megumi.hospitalregistersystem.dao.DoctorDao">
+    <insert id="save">
+        insert into doctor(username,password,name,age,gender,email,title,department,remark,register_type) values (#{username},#{password},#{name},#{age},#{gender},#{email},#{title},#{department},#{remark},#{register_type})
+    </insert>
+    <update id="update">
+        update doctor(name,age,gender,email,title,department,remark,register_type) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark},#{register_type})
+    </update>
+    <select id="getById" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor where id = #{id}
+    </select>
+    <select id="login" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor where username=#{username} and password=#{password}
+    </select>
+    <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor where username=#{username}
+    </select>
+    <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+    </select>
+</mapper>
