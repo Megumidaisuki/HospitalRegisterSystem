@@ -7,6 +7,22 @@
     <update id="update">
         update doctor(name,age,gender,email,title,department,remark,register_type) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark},#{register_type})
     </update>
+    <update id="updateSchedule">
+        update arrangement_message(time_scope,register_type,register_amounts,registered_amount) values (#{time_scope},#{register_type},#{register_amounts},#{registered_amounts})
+    </update>
+    <update id="updateTemplate">
+        update arrangement_template(time_scope,register_type,register_amounts) values (#{time_scope},#{register_type},#{register_amounts})
+    </update>
+    <delete id="deleteSchedule">
+        delete from arrangement_message where doctor_name = #{doctor_name} and time_scope = #{time_scope} and register_type = #{register_type} and register_amounts = #{registered_amount}
+    </delete>
+    <delete id="deleteTemplate">
+        delete from arrangement_template where time_scope = #{time_scope} and register_type = #{register_type} and register_amounts = #{registered_amount}
+    </delete>
+    <insert id="newTemplate">
+        insert into arrangement_template(id,time_scope,register_type,register_amounts) values (#{id},#{time_scope},#{register_type},#{register_amounts})
+    </insert>
+
     <select id="getById" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
         select * from doctor where id = #{id}
     </select>
@@ -18,5 +34,11 @@
     </select>
     <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
         select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+    </select>
+    <select id="getByName" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
+        select * from arrangement_message where name=#{name}
+    </select>
+    <select id="getAllTemplate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementTemplate">
+        select * from arrangement_template
     </select>
 </mapper>

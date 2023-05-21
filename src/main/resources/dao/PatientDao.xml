@@ -4,10 +4,29 @@
     <insert id="save">
         insert into patient (username,password,name,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
     </insert>
+    <update id="updateStatus">
+        update patient (status) values (1) where id =#{id}
+    </update>
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Patient">
         select * from patient where username=#{username}
     </select>
     <select id="login" resultType="com.megumi.hospitalregistersystem.domain.Patient">
         select * from patient where username=#{username} and password=#{password}
+    </select>
+    <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+    </select>
+    <select id="getByDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
+        select * from register_type where department=#{department}
+    </select>
+    <select id="getByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
+        select * from register_type where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+    </select>
+    <select id="getNameById" resultType="java.lang.String">
+        select name from patient where id = #{id}
+    </select>
+    <select id="getRegisterMessageByName"
+            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
+        select * from register_message where name=#{name}
     </select>
 </mapper>

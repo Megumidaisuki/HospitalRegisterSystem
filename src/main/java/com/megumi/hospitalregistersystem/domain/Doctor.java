@@ -16,5 +16,5 @@ public class Doctor {
     private String title;
     private String department;
     private String remark;
-    private String registeredType;
+    private String registerType;
 }

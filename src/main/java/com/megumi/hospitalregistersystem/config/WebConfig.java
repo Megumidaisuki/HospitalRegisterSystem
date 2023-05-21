@@ -23,6 +23,6 @@ public class WebConfig implements  WebMvcConfigurer {
 	// 加自定义拦截器JwtInterceptor，设置拦截规则
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/doctor/login");
+        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/**/login");
     }
 }

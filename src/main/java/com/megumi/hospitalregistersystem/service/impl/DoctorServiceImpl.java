@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.dao.DoctorDao;
+import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
+import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
 import com.megumi.hospitalregistersystem.domain.Doctor;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.exception.serviceException;
@@ -83,5 +85,42 @@ public class DoctorServiceImpl implements DoctorService {
         List<Doctor> doctors = doctorDao.queryByNameAndDepartment(pageRequest);
         PageInfo<Doctor> pageInfo = new PageInfo<>(doctors);
         return pageInfo;
+    }
+
+    @Override
+    public List<ArrangementMessage> showSchedule(Doctor doctor) {
+        List<ArrangementMessage> messageList = doctorDao.getByName(doctor);
+        return messageList;
+    }
+
+    @Override
+    public List<ArrangementTemplate> showTemplate() {
+        List<ArrangementTemplate> allTemplate = doctorDao.getAllTemplate();
+        return allTemplate;
+    }
+
+    @Override
+    public void newTemplate(ArrangementTemplate arrangementType) {
+        doctorDao.newTemplate(arrangementType);
+    }
+
+    @Override
+    public void updateSchedule(ArrangementMessage arrangementMessage) {
+        doctorDao.updateSchedule(arrangementMessage);
+    }
+
+    @Override
+    public void updateTemplate(ArrangementTemplate arrangementType) {
+        doctorDao.updateTemplate(arrangementType);
+    }
+
+    @Override
+    public void deleteSchedule(ArrangementMessage arrangementMessage) {
+        doctorDao.deleteSchedule(arrangementMessage);
+    }
+
+    @Override
+    public void deleteTemplate(ArrangementTemplate arrangementTemplate) {
+        doctorDao.deleteTemplate(arrangementTemplate);
     }
 }
