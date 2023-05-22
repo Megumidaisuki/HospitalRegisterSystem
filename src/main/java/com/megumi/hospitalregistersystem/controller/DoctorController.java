@@ -4,12 +4,15 @@ import com.megumi.hospitalregistersystem.common.Result;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
+import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
 import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
 import com.megumi.hospitalregistersystem.domain.Doctor;
 import com.megumi.hospitalregistersystem.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/doctor")
@@ -69,7 +72,7 @@ public class DoctorController {
         doctorService.updateSchedule(arrangementMessage);
         return Result.success();
     }
-    //删除排班信息(将doctorName,timeScope,registerType,registerAmounts作为删除依据)
+    //删除排班信息(将doctorName,timeScope,registerType,registerAmounts,date作为删除依据)
     @DeleteMapping("/deleteSchedule")
     public Result deleteSchedule(ArrangementMessage arrangementMessage){
         doctorService.deleteSchedule(arrangementMessage);
@@ -88,6 +91,41 @@ public class DoctorController {
         return Result.success();
     }
     //选择排班模板，将当日排班设置为模板排班时间
+    @PutMapping("/setMessageByTemplate")
+    public Result setMessageByTemplate(ArrangementTemplate arrangementTemplate,Doctor doctor) throws ParseException {
+        doctorService.setMessageByTemplate(arrangementTemplate,doctor);
+        return Result.success();
+    }
+    //将排班信息按日复制
+    @PutMapping("/copyByDay")
+    public Result copyByDay(String date,String targetDate){
+        doctorService.copyByDay(date,targetDate);
+        return Result.success();
+    }
+    //将排班信息按周复制
+    @PutMapping("/copyByWeek")
+    public Result copyByWeek(int year,int week,int targetWeek){
+        doctorService.copyByWeek(year,week,targetWeek);
+        return Result.success();
+    }
 
+    //查看患者信息
+    @GetMapping("/getPatientMessage")
+    public Result getPatientMessage(Doctor doctor){
+        return Result.success(doctorService.getPatientMessage(doctor));
+    }
 
+    //修改患者信息
+    @PutMapping("/updatePatientMessage")
+    public Result updatePatientMessage(Doctor doctor){
+        doctorService.updatePatientMessage(doctor);
+        return Result.success();
+    }
+
+    //修改密码
+    @PutMapping("/newPass")
+    public Result newPass(@RequestBody NewPassRequest newPassRequest){
+        doctorService.newPass(newPassRequest);
+        return Result.success();
+    }
 }

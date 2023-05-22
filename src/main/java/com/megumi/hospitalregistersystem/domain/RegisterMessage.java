@@ -12,4 +12,6 @@ public class RegisterMessage {
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date createTime;
     private Integer cost;
+    private String patientName;
+    private String doctorName;
 }

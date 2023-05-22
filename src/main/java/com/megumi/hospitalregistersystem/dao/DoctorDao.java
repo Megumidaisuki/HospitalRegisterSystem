@@ -1,10 +1,12 @@
 package com.megumi.hospitalregistersystem.dao;
 
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
+import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
 import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
 import com.megumi.hospitalregistersystem.domain.Doctor;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
+import com.megumi.hospitalregistersystem.domain.PatientMessage;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -36,4 +38,14 @@ public interface DoctorDao {
     void deleteSchedule(ArrangementMessage arrangementMessage);
 
     void deleteTemplate(ArrangementTemplate arrangementTemplate);
+
+    void setMessage(ArrangementMessage arrangementMessage);
+
+    List<ArrangementMessage> getMessageByDate(String date);
+
+    List<PatientMessage> getPatientMessage(Doctor doctor);
+
+    void updatePatientMessage(Doctor doctor);
+
+    void updatePassword(NewPassRequest newPassRequest);
 }

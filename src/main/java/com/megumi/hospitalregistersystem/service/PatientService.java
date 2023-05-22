@@ -5,6 +5,7 @@ import com.megumi.hospitalregistersystem.controller.dto.DoctorPageDTO;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
+import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.controller.request.RegisterTypePageRequest;
 import com.megumi.hospitalregistersystem.domain.Patient;
 import com.megumi.hospitalregistersystem.domain.RegisterMessage;
@@ -26,4 +27,8 @@ public interface PatientService {
     List<RegisterMessage> getHistory(Integer id);
 
     void updateStatus(RegisterMessage registerMessage);
+
+    void newPass(NewPassRequest newPassRequest);
+
+    void register(RegisterType registerType, Patient patient);
 }

@@ -7,6 +7,7 @@ import com.megumi.hospitalregistersystem.controller.dto.DoctorPageDTO;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
+import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.controller.request.RegisterTypePageRequest;
 import com.megumi.hospitalregistersystem.dao.PatientDao;
 import com.megumi.hospitalregistersystem.domain.Doctor;
@@ -104,6 +105,21 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public void updateStatus(RegisterMessage registerMessage) {
         patientDao.updateStatus(registerMessage);
+    }
+
+    @Override
+    public void newPass(NewPassRequest newPassRequest) {
+        //先对新的密码加密
+        newPassRequest.setNewPass(encrypt(newPassRequest.getNewPass()));
+        patientDao.updatePassword(newPassRequest);
+    }
+
+    @Override
+    public void register(RegisterType registerType, Patient patient) {
+        //在register_message中添加信息
+        patientDao.register(registerType,patient);
+        //在patient_message中添加信息
+        patientDao.newPatientMessage(registerType,patient);
     }
 
     public Patient getByUsername(String username) {

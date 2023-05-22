@@ -4,8 +4,17 @@
     <insert id="save">
         insert into patient (username,password,name,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
     </insert>
+    <insert id="register">
+        insert into register_message(name,cost,patient_name,doctor_name) values (#{name},#{cost},#{patientName},#{doctorName})
+    </insert>
+    <insert id="newPatientMessage">
+        insert into patient_message(name,age,gender,phone,email,discredit_times,doctor_name)values (#{patientName},#{age},#{gender},#{phone},#{email},#{discredit_times},#{doctorName})
+    </insert>
     <update id="updateStatus">
         update patient (status) values (1) where id =#{id}
+    </update>
+    <update id="updatePassword">
+        update patient(password) values (#{newPass}) where username =#{username} and password =#{password}
     </update>
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Patient">
         select * from patient where username=#{username}

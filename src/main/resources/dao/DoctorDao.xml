@@ -8,13 +8,22 @@
         update doctor(name,age,gender,email,title,department,remark,register_type) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark},#{register_type})
     </update>
     <update id="updateSchedule">
-        update arrangement_message(time_scope,register_type,register_amounts,registered_amount) values (#{time_scope},#{register_type},#{register_amounts},#{registered_amounts})
+        update arrangement_message(time_scope,register_type,register_amounts,registered_amount,date) values (#{time_scope},#{register_type},#{register_amounts},#{registered_amounts},#{date})
     </update>
     <update id="updateTemplate">
         update arrangement_template(time_scope,register_type,register_amounts) values (#{time_scope},#{register_type},#{register_amounts})
     </update>
+    <update id="updatePatientMessage">
+        update patient_message(name,age,gender,phone,email,discredit_times) values (#{name},#{age},#{gender},#{phone},#{email},#{discredit_times})
+    </update>
+    <update id="updatePassword">
+        update doctor(password)) values (#{newPass}) where username=#{username} and password=#{password}
+    </update>
+    <insert id="setMessage">
+        insert into arrangement_message(doctor_name,time_scope,register_type,register_amounts,date) values (#{doctor_name},#{time_scope},#{register_type},#{register_amounts},#{date})
+    </insert>
     <delete id="deleteSchedule">
-        delete from arrangement_message where doctor_name = #{doctor_name} and time_scope = #{time_scope} and register_type = #{register_type} and register_amounts = #{registered_amount}
+        delete from arrangement_message where doctor_name = #{doctor_name} and time_scope = #{time_scope} and register_type = #{register_type} and register_amounts = #{registered_amount} and date=#{date}
     </delete>
     <delete id="deleteTemplate">
         delete from arrangement_template where time_scope = #{time_scope} and register_type = #{register_type} and register_amounts = #{registered_amount}
@@ -40,5 +49,11 @@
     </select>
     <select id="getAllTemplate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementTemplate">
         select * from arrangement_template
+    </select>
+    <select id="getMessageByDate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
+        select * from arrangement_message where date = #{date}
+    </select>
+    <select id="getPatientMessage" resultType="com.megumi.hospitalregistersystem.domain.PatientMessage">
+        select * from patient_message where name = #{name}
     </select>
 </mapper>

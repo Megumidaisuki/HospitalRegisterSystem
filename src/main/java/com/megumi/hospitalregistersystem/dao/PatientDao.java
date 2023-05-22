@@ -2,6 +2,7 @@ package com.megumi.hospitalregistersystem.dao;
 
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
+import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.controller.request.RegisterTypePageRequest;
 import com.megumi.hospitalregistersystem.domain.Doctor;
 import com.megumi.hospitalregistersystem.domain.Patient;
@@ -30,4 +31,10 @@ public interface PatientDao {
     List<RegisterMessage> getRegisterMessageByName(String name);
 
     void updateStatus(RegisterMessage registerMessage);
+
+    void updatePassword(NewPassRequest newPassRequest);
+
+    void register(RegisterType registerType, Patient patient);
+
+    void newPatientMessage(RegisterType registerType, Patient patient);
 }
