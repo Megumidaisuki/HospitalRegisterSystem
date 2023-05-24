@@ -6,6 +6,6 @@ import lombok.Data;
 public class ArrangementTemplate {
     private Integer id;
     private String timeScope;
-    private String registerType;
+    private String typeId;
     private String registerAmounts;
 }

@@ -6,11 +6,8 @@ import com.github.pagehelper.PageInfo;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.dao.DoctorDao;
-import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
-import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
-import com.megumi.hospitalregistersystem.domain.Doctor;
+import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
-import com.megumi.hospitalregistersystem.domain.PatientMessage;
 import com.megumi.hospitalregistersystem.exception.serviceException;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
 import com.megumi.hospitalregistersystem.service.DoctorService;
@@ -62,7 +59,7 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorDao.getById(id);
     }
 
-
+    //登录
     @Override
     public LoginDTO login(LoginRequest loginRequest) {
         //密码加密
@@ -86,12 +83,13 @@ public class DoctorServiceImpl implements DoctorService {
 
 
 
-
+    //通过用户名得到doctor对象
     @Override
     public Doctor getByUsername(String username) {
         return doctorDao.getByUsername(username);
     }
 
+    //注册
     @Override
     public void save(Doctor doctor) {
         //加密
@@ -101,12 +99,14 @@ public class DoctorServiceImpl implements DoctorService {
 
     }
 
+    //更新医生信息
     @Override
     public void update(Doctor doctor) {
 
         doctorDao.update(doctor);
     }
 
+    //医生信息的分页模糊查询
     @Override
     public PageInfo<Doctor> page(DoctorPageRequest pageRequest) {
         PageHelper.startPage(pageRequest.getCurrentPage(), pageRequest.getPageSize());
@@ -115,43 +115,56 @@ public class DoctorServiceImpl implements DoctorService {
         return pageInfo;
     }
 
+    //展现医生的排班表
     @Override
     public List<ArrangementMessage> showSchedule(Doctor doctor) {
         List<ArrangementMessage> messageList = doctorDao.getByName(doctor);
         return messageList;
     }
 
+    //展现所有的排班模板
     @Override
     public List<ArrangementTemplate> showTemplate() {
         List<ArrangementTemplate> allTemplate = doctorDao.getAllTemplate();
         return allTemplate;
     }
 
+    //创建新的排班模板
     @Override
     public void newTemplate(ArrangementTemplate arrangementType) {
         doctorDao.newTemplate(arrangementType);
     }
 
+    //更新排班信息表
     @Override
     public void updateSchedule(ArrangementMessage arrangementMessage) {
         doctorDao.updateSchedule(arrangementMessage);
+        //在更新排班信息表的同时也要更新register_type中的信息
+        doctorDao.updateRegisterTypeByArrangement(arrangementMessage);
     }
 
+    //更新排班模板
     @Override
     public void updateTemplate(ArrangementTemplate arrangementType) {
         doctorDao.updateTemplate(arrangementType);
     }
 
+    //删除排班信息
     @Override
     public void deleteSchedule(ArrangementMessage arrangementMessage) {
         doctorDao.deleteSchedule(arrangementMessage);
+        //删除排班信息表的同时也要删除register_type中的信息
+        doctorDao.deleteRegisterTypeByArrangement(arrangementMessage);
+
     }
 
+    //删除排班模板
     @Override
     public void deleteTemplate(ArrangementTemplate arrangementTemplate) {
         doctorDao.deleteTemplate(arrangementTemplate);
     }
 
+    //将排班模板应用到排班信息
     @Override
     public void setMessageByTemplate(ArrangementTemplate arrangementTemplate, Doctor doctor)  {
         ArrangementMessage arrangementMessage = new ArrangementMessage();
@@ -162,14 +175,16 @@ public class DoctorServiceImpl implements DoctorService {
         arrangementMessage.setDoctorName(doctor.getName());
         //将该模板添加到排班信息
         doctorDao.setMessage(arrangementMessage);
+        doctorDao.newRegisterTypeByArrangement(arrangementMessage);
     }
-    //提供一个根据日期获得排班信息的方法
 
+    //提供一个根据日期获得排班信息的方法
     @Override
     public List<ArrangementMessage> getMessageByDate(String date) {
         return doctorDao.getMessageByDate(date);
     }
 
+    //根据周复制排班信息
     @Override
     public void copyByWeek(int year, int week, int targetWeek) {
         //创建一个Calendar实例，并设置为指定年份的第几周
@@ -187,17 +202,27 @@ public class DoctorServiceImpl implements DoctorService {
         }
     }
 
+    //得到已挂号患者的信息
     @Override
     public List<PatientMessage> getPatientMessage(Doctor doctor) {
         List<PatientMessage> messageList = doctorDao.getPatientMessage(doctor);
         return messageList;
     }
 
+    //将患者信息的失约次数加一
     @Override
-    public void updatePatientMessage(Doctor doctor) {
-        doctorDao.updatePatientMessage(doctor);
+    public void updatePatientMessage(Patient patient) {
+        doctorDao.updatePatientMessage(patient);
     }
 
+    //得到该医生负责的历史挂号信息
+    @Override
+    public List<RegisterMessage> getHistory(Doctor doctor) {
+        List<RegisterMessage> messages = doctorDao.getRegisterMessageByName(doctor);
+        return messages;
+    }
+
+    //修改密码
     @Override
     public void newPass(NewPassRequest newPassRequest) {
         //先对新的密码加密
@@ -205,11 +230,27 @@ public class DoctorServiceImpl implements DoctorService {
         doctorDao.updatePassword(newPassRequest);
     }
 
+    //通过排班更新挂号类型
+    @Override
+    public void updateRegisterTypeByArrangement(ArrangementMessage arrangementMessage) {
+        doctorDao.updateRegisterTypeByArrangement(arrangementMessage);
+    }
+
+    //将挂号信息表从“已预约”改为“已付款”
+    @Override
+    public void updateStatus(RegisterMessage registerMessage) {
+        doctorDao.updateStatus(registerMessage);
+    }
+
+    //按天复制排班信息
     @Override
     public void copyByDay(String date, String targetDate) {
         List<ArrangementMessage> messageList = getMessageByDate(date);
         for(ArrangementMessage message:messageList) {
             doctorDao.setMessage(message);
+            //添加到挂号类型表
+            doctorDao.newRegisterTypeByArrangement(message);
+
         }
     }
 }

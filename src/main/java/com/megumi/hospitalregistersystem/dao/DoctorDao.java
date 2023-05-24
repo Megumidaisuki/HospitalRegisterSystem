@@ -2,11 +2,8 @@ package com.megumi.hospitalregistersystem.dao;
 
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
-import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
-import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
-import com.megumi.hospitalregistersystem.domain.Doctor;
+import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
-import com.megumi.hospitalregistersystem.domain.PatientMessage;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -45,7 +42,19 @@ public interface DoctorDao {
 
     List<PatientMessage> getPatientMessage(Doctor doctor);
 
-    void updatePatientMessage(Doctor doctor);
+    void updatePatientMessage(Patient patient);
 
     void updatePassword(NewPassRequest newPassRequest);
+
+    void setMessageFollowed(ArrangementMessage message);
+
+    void updateRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
+
+    void deleteRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
+
+    void newRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
+
+    List<RegisterMessage> getRegisterMessageByName(Doctor doctor);
+
+    void updateStatus(RegisterMessage registerMessage);
 }

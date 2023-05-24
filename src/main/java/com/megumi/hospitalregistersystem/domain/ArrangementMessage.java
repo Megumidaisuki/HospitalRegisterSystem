@@ -10,7 +10,7 @@ public class ArrangementMessage {
     private Integer id;
     private String doctorName;
     private String timeScope;
-    private String registerType;
+    private String typeId;
     private String registerAmounts;
     private String registeredAmounts;
     private String date;

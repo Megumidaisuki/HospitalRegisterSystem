@@ -10,10 +10,7 @@ import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.controller.request.RegisterTypePageRequest;
 import com.megumi.hospitalregistersystem.dao.PatientDao;
-import com.megumi.hospitalregistersystem.domain.Doctor;
-import com.megumi.hospitalregistersystem.domain.Patient;
-import com.megumi.hospitalregistersystem.domain.RegisterMessage;
-import com.megumi.hospitalregistersystem.domain.RegisterType;
+import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.exception.serviceException;
 import com.megumi.hospitalregistersystem.service.PatientService;
 import com.megumi.hospitalregistersystem.utils.TokenUtils;
@@ -33,6 +30,8 @@ public class PatientServiceImpl implements PatientService {
     private String encrypt(String password){
         return SecureUtil.md5(password+PASS_SALT);
     }
+
+    //登录
     @Override
     public LoginDTO login(LoginRequest loginRequest) {
         //密码加密
@@ -55,6 +54,7 @@ public class PatientServiceImpl implements PatientService {
 
     }
 
+    //注册
     @Override
     public void save(Patient patient) {
         //加密
@@ -63,6 +63,7 @@ public class PatientServiceImpl implements PatientService {
         patientDao.save(patient);
     }
 
+    //医生信息的分页模糊查询
     @Override
     public PageInfo<DoctorPageDTO> pageDoctor(DoctorPageRequest pageRequest) {
         PageHelper.startPage(pageRequest.getCurrentPage(), pageRequest.getPageSize());
@@ -78,6 +79,7 @@ public class PatientServiceImpl implements PatientService {
         return pageInfo;
     }
 
+    //通过部门获得挂号信息
     @Override
     public RegisterType getByDepartment(String department) {
         RegisterType registerType = patientDao.getByDepartment(department);
@@ -87,26 +89,29 @@ public class PatientServiceImpl implements PatientService {
         return registerType;
     }
 
+    //通过医生和部门模糊分页查询挂号类型
     @Override
     public PageInfo<RegisterType> pageRegister(RegisterTypePageRequest pageRequest) {
         PageHelper.startPage(pageRequest.getCurrentPage(), pageRequest.getPageSize());
-        List<RegisterType> registerTypeS = (List<RegisterType>) patientDao.getByNameAndDepartment(pageRequest);
+        List<RegisterType> registerTypeS = patientDao.getByNameAndDepartment(pageRequest);
         PageInfo<RegisterType> pageInfo = new PageInfo<>(registerTypeS);
         return pageInfo;
     }
 
+    //得到病人的历史挂号信息
     @Override
-    public List<RegisterMessage> getHistory(Integer id) {
-        String name = patientDao.getNameById(id);
-        List<RegisterMessage> messages = patientDao.getRegisterMessageByName(name);
+    public List<RegisterMessage> getHistory(Patient patient) {
+        List<RegisterMessage> messages = patientDao.getRegisterMessageByName(patient);
         return messages;
     }
 
+    //无效接口
     @Override
     public void updateStatus(RegisterMessage registerMessage) {
         patientDao.updateStatus(registerMessage);
     }
 
+    //修改密码
     @Override
     public void newPass(NewPassRequest newPassRequest) {
         //先对新的密码加密
@@ -114,14 +119,22 @@ public class PatientServiceImpl implements PatientService {
         patientDao.updatePassword(newPassRequest);
     }
 
+    //挂号
     @Override
     public void register(RegisterType registerType, Patient patient) {
+        //通过register_type得到type_message
+        TypeMessage typeMessage = patientDao.getTypeMessageByRegisterType(registerType);
         //在register_message中添加信息
-        patientDao.register(registerType,patient);
+        patientDao.register(typeMessage,patient,registerType);
         //在patient_message中添加信息
         patientDao.newPatientMessage(registerType,patient);
+        //将arrangement_message的“可挂号数量”减一
+        patientDao.updateArrangementMessage(registerType);
+        //将register_type的“可挂号数量”减一
+        patientDao.updateRegisterType(registerType);
     }
 
+    //通过用户名得到患者信息（此接口为login方法的辅助接口）
     public Patient getByUsername(String username) {
         return patientDao.getByUsername(username);
     }

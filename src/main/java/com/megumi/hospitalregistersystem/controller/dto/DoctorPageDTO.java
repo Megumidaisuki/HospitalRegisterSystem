@@ -8,7 +8,6 @@ public class DoctorPageDTO {
     private String title;
     private String department;
     private String remark;
-    private String registerType;
 
 
 }

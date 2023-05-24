@@ -7,9 +7,9 @@ import java.util.List;
 @Data
 public class RegisterType  {
     private Integer id;
-    private String name;
-    private Integer cost;
-    private String time;
     private String doctorName;
-    private String department;
+    private String date;
+    private String registerAmounts;
+    private String registeredAmounts;
+    private Integer typeId;
 }

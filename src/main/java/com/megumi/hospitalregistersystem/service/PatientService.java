@@ -24,7 +24,7 @@ public interface PatientService {
 
     PageInfo<RegisterType> pageRegister(RegisterTypePageRequest pageRequest);
 
-    List<RegisterMessage> getHistory(Integer id);
+    List<RegisterMessage> getHistory(Patient patient);
 
     void updateStatus(RegisterMessage registerMessage);
 

@@ -4,10 +4,7 @@ import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
 import com.megumi.hospitalregistersystem.controller.request.RegisterTypePageRequest;
-import com.megumi.hospitalregistersystem.domain.Doctor;
-import com.megumi.hospitalregistersystem.domain.Patient;
-import com.megumi.hospitalregistersystem.domain.RegisterMessage;
-import com.megumi.hospitalregistersystem.domain.RegisterType;
+import com.megumi.hospitalregistersystem.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -24,17 +21,22 @@ public interface PatientDao {
 
     RegisterType getByDepartment(String department);
 
-    RegisterType getByNameAndDepartment(RegisterTypePageRequest pageRequest);
+    List<RegisterType> getByNameAndDepartment(RegisterTypePageRequest pageRequest);
 
     String getNameById(Integer id);
 
-    List<RegisterMessage> getRegisterMessageByName(String name);
+    List<RegisterMessage> getRegisterMessageByName(Patient patient);
 
     void updateStatus(RegisterMessage registerMessage);
 
     void updatePassword(NewPassRequest newPassRequest);
 
-    void register(RegisterType registerType, Patient patient);
-
     void newPatientMessage(RegisterType registerType, Patient patient);
+
+    void updateArrangementMessage(RegisterType registerType);
+
+    void updateRegisterType(RegisterType registerType);
+    TypeMessage getTypeMessageByRegisterType(RegisterType registerType);
+
+    void register(TypeMessage typeMessage, Patient patient, RegisterType registerType);
 }

@@ -54,12 +54,12 @@ public class PatientController {
     }
 
     //提供一个查看历史挂号信息和订单状态（已预约，已付款）的接口
-    @GetMapping("/history/{id}")
-    public Result getHistory(@PathVariable Integer id) {
-        return Result.success(patientService.getHistory(id));
+    @GetMapping("/history")
+    public Result getHistory(Patient patient) {
+        return Result.success(patientService.getHistory(patient));
     }
 
-    //提供一个修改订单信息的接口(将status字段从“已预约0”改成“已付款1”)
+    //提供一个修改订单信息的接口(将status字段从“已预约0”改成“已付款1”)-----------------此接口无效，该操作应该由医生完成，相应的接口已在医生controller层补充
     @PutMapping("/updateStatus")
     public Result updateStatus(RegisterMessage registerMessage) {
         patientService.updateStatus(registerMessage);

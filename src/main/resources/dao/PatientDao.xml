@@ -5,16 +5,22 @@
         insert into patient (username,password,name,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
     </insert>
     <insert id="register">
-        insert into register_message(name,cost,patient_name,doctor_name) values (#{name},#{cost},#{patientName},#{doctorName})
+        insert into register_message(type_id,cost,patient_name,doctor_name) values (#{typeId},#{cost},#{patientName},#{doctorName})
     </insert>
     <insert id="newPatientMessage">
         insert into patient_message(name,age,gender,phone,email,discredit_times,doctor_name)values (#{patientName},#{age},#{gender},#{phone},#{email},#{discredit_times},#{doctorName})
     </insert>
     <update id="updateStatus">
-        update patient (status) values (1) where id =#{id}
+        update register_message set status = 1 where id =#{id}
     </update>
     <update id="updatePassword">
-        update patient(password) values (#{newPass}) where username =#{username} and password =#{password}
+        update patient set password=#{newPass} where username =#{username} and password =#{password}
+    </update>
+    <update id="updateArrangementMessage">
+        update arrangement_message set registered_amounts=registered_amounts+1 where doctor_name = #{doctorName} and register_type=#{name} where id=#{id}
+    </update>
+    <update id="updateRegisterType">
+        update register_type set registered_amounts=registered_amounts+1 where id=#{id}
     </update>
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Patient">
         select * from patient where username=#{username}
@@ -26,16 +32,20 @@
         select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
     </select>
     <select id="getByDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
-        select * from register_type where department=#{department}
+        select r.*,t.type_name,t.cost,t.continue_time,t.department from register_type r right join type_message t on r.type_id=t.id where t.department=#{department}
     </select>
     <select id="getByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
-        select * from register_type where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+        select t.*,r.doctor_name,r.register_amounts,r.registered_amounts,r.date from register_type r right join type_message t on r.type_id=t.id where t.type_name like concat('%',#{name},'%') and t.department like concat('%',#{department},'%')
     </select>
     <select id="getNameById" resultType="java.lang.String">
         select name from patient where id = #{id}
     </select>
     <select id="getRegisterMessageByName"
             resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
-        select * from register_message where name=#{name}
+        select * from register_message where patient_name=#{name}
+    </select>
+    <select id="getTypeMessageByRegisterType"
+            resultType="com.megumi.hospitalregistersystem.domain.TypeMessage">
+        select * from type_message where id=#{type_id}
     </select>
 </mapper>

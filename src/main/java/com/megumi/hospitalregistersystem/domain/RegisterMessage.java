@@ -8,7 +8,7 @@ import java.util.Date;
 @Data
 public class RegisterMessage {
     private Integer id;
-    private String name;
+    private String typeId;
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date createTime;
     private Integer cost;

@@ -5,9 +5,7 @@ import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
-import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
-import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
-import com.megumi.hospitalregistersystem.domain.Doctor;
+import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -62,13 +60,13 @@ public class DoctorController {
 
     //医生新建排班模板
     @PutMapping("/newTemplate")
-    public Result newTemplate(ArrangementTemplate arrangementType){
+    public Result newTemplate(@RequestBody ArrangementTemplate arrangementType){
         doctorService.newTemplate(arrangementType);
         return Result.success();
     }
-    //修改排班信息
+    //修改排班信息,同时更新挂号类型表
     @PutMapping("/updateSchedule")
-        public Result updateSchedule(ArrangementMessage arrangementMessage){
+        public Result updateSchedule(@RequestBody ArrangementMessage arrangementMessage){
         doctorService.updateSchedule(arrangementMessage);
         return Result.success();
     }
@@ -80,7 +78,7 @@ public class DoctorController {
     }
     //修改排班模板
     @PutMapping("/updateTemplate")
-    public Result updateTemplate(ArrangementTemplate arrangementType){
+    public Result updateTemplate(@RequestBody ArrangementTemplate arrangementType){
         doctorService.updateTemplate(arrangementType);
         return Result.success();
     }
@@ -90,7 +88,7 @@ public class DoctorController {
         doctorService.deleteTemplate(arrangementTemplate);
         return Result.success();
     }
-    //选择排班模板，将当日排班设置为模板排班时间
+    //选择排班模板，将当日排班设置为模板排班时间，同时插入新的挂号信息数据
     @PutMapping("/setMessageByTemplate")
     public Result setMessageByTemplate(ArrangementTemplate arrangementTemplate,Doctor doctor) throws ParseException {
         doctorService.setMessageByTemplate(arrangementTemplate,doctor);
@@ -117,8 +115,8 @@ public class DoctorController {
 
     //修改患者信息
     @PutMapping("/updatePatientMessage")
-    public Result updatePatientMessage(Doctor doctor){
-        doctorService.updatePatientMessage(doctor);
+    public Result updatePatientMessage(@RequestBody Patient patient){
+        doctorService.updatePatientMessage(patient);
         return Result.success();
     }
 
@@ -126,6 +124,17 @@ public class DoctorController {
     @PutMapping("/newPass")
     public Result newPass(@RequestBody NewPassRequest newPassRequest){
         doctorService.newPass(newPassRequest);
+        return Result.success();
+    }
+    //提供一个查看历史挂号信息和订单状态（已预约，已付款）的接口
+    @GetMapping("/history")
+    public Result getHistory(Doctor doctor) {
+        return Result.success(doctorService.getHistory(doctor));
+    }
+    //提供一个修改订单信息的接口(将status字段从“已预约0”改成“已付款1”)
+    @PutMapping("/updateStatus")
+    public Result updateStatus(RegisterMessage registerMessage) {
+        doctorService.updateStatus(registerMessage);
         return Result.success();
     }
 }

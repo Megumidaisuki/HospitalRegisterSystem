@@ -3,12 +3,9 @@ package com.megumi.hospitalregistersystem.service;
 import com.github.pagehelper.PageInfo;
 import com.megumi.hospitalregistersystem.controller.request.DoctorPageRequest;
 import com.megumi.hospitalregistersystem.controller.request.NewPassRequest;
-import com.megumi.hospitalregistersystem.domain.ArrangementMessage;
-import com.megumi.hospitalregistersystem.domain.ArrangementTemplate;
-import com.megumi.hospitalregistersystem.domain.Doctor;
+import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.controller.dto.LoginDTO;
 import com.megumi.hospitalregistersystem.controller.request.LoginRequest;
-import com.megumi.hospitalregistersystem.domain.PatientMessage;
 
 import java.util.List;
 
@@ -47,7 +44,11 @@ public interface DoctorService {
 
     List<PatientMessage> getPatientMessage(Doctor doctor);
 
-    void updatePatientMessage(Doctor doctor);
+    void updatePatientMessage(Patient patient);
+    List<RegisterMessage> getHistory(Doctor doctor);
 
     void newPass(NewPassRequest newPassRequest);
+    void updateRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
+
+    void updateStatus(RegisterMessage registerMessage);
 }
