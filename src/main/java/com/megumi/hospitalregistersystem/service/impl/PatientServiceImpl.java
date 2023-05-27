@@ -14,12 +14,15 @@ import com.megumi.hospitalregistersystem.domain.*;
 import com.megumi.hospitalregistersystem.exception.serviceException;
 import com.megumi.hospitalregistersystem.service.PatientService;
 import com.megumi.hospitalregistersystem.utils.TokenUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Service
 public class PatientServiceImpl implements PatientService {
@@ -81,12 +84,12 @@ public class PatientServiceImpl implements PatientService {
 
     //通过部门获得挂号信息
     @Override
-    public RegisterType getByDepartment(String department) {
-        RegisterType registerType = patientDao.getByDepartment(department);
-        if(registerType==null){
+    public List<RegisterType> getByDepartment(String department) {
+        List<RegisterType> registerTypeS = patientDao.getByDepartment(department);
+        if(registerTypeS.isEmpty()){
             throw new serviceException("401","该科室不存在");
         }
-        return registerType;
+        return registerTypeS;
     }
 
     //通过医生和部门模糊分页查询挂号类型
@@ -132,6 +135,38 @@ public class PatientServiceImpl implements PatientService {
         patientDao.updateArrangementMessage(registerType);
         //将register_type的“可挂号数量”减一
         patientDao.updateRegisterType(registerType);
+        //开始倒计时，60min内订单状态若未从0变成1则使失约次数加一
+            //创建一个Timer计时器类
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                RegisterMessage message = patientDao.getAccurateRegisterMessage(registerType, patient);
+                if(message.getOrderStatus() ==0){
+                    patientDao.updatePatientMessage(patient.getName(),registerType.getDoctorName(), typeMessage.getCost());
+                }
+                cancel();
+            }
+        },60*1000*60);
+    }
+
+    //将患者信息的失约次数加一(唯一确定订单信息)
+    @Override
+    public void updatePatientMessage(String patientName, String doctorName, Integer cost) {
+        patientDao.updatePatientMessage(patientName,doctorName,cost);
+    }
+
+    //得到所有的医生信息
+    @Override
+    public List<DoctorPageDTO> findAll() {
+        //将Doctor对象转化为DoctorPageDTO返回
+        List<Doctor> doctors = patientDao.findAll();
+        List<DoctorPageDTO> pageDTOS = new ArrayList<>();
+        for (Doctor doctor : doctors) {
+            DoctorPageDTO pageDTO = new DoctorPageDTO();
+            BeanUtils.copyProperties(doctors,pageDTO);
+            pageDTOS.add(pageDTO);
+        }
+        return pageDTOS;
     }
 
     //通过用户名得到患者信息（此接口为login方法的辅助接口）

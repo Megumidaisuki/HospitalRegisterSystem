@@ -15,18 +15,22 @@ import com.megumi.hospitalregistersystem.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@CrossOrigin
 @RequestMapping("/patient")
 public class PatientController {
     @Autowired
     private PatientService patientService;
-
+    //登录
     @PostMapping("/login")
     public Result login(@RequestBody LoginRequest loginRequest) {
         LoginDTO loginDTO = patientService.login(loginRequest);
         return Result.success(loginDTO);
     }
 
+    //注册
     @PutMapping("/save")
     public Result save(@RequestBody Patient patient) {
         patientService.save(patient);
@@ -40,6 +44,12 @@ public class PatientController {
         return Result.success(doctorPageDTO);
     }
 
+    //查看所有医生信息
+    @GetMapping("/findAll")
+    public Result allDoctor() {
+        List<DoctorPageDTO> doctorPageDTO = patientService.findAll();
+        return Result.success(doctorPageDTO);
+    }
     //分页查看可以选择的挂号类型
     @GetMapping("/pageRegister")
     public Result pageRegister(@RequestBody RegisterTypePageRequest pageRequest) {
@@ -47,9 +57,9 @@ public class PatientController {
         return Result.success(registerType);
     }
 
-    //提供一个根据科室查看挂号类型的接口(未完成，还存在url中文传参失败问题)
+    //提供一个根据科室查看挂号类型的接口
     @GetMapping("/department")
-    public Result getByDepartment(String department) {
+    public Result getByDepartment(@RequestBody String department) {
         return Result.success(patientService.getByDepartment(department));
     }
 
@@ -78,4 +88,6 @@ public class PatientController {
         patientService.newPass(newPassRequest);
         return Result.success();
     }
+    //
+
 }

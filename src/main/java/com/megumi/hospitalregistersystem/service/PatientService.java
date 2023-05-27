@@ -20,7 +20,7 @@ public interface PatientService {
 
     PageInfo<DoctorPageDTO> pageDoctor(DoctorPageRequest pageRequest);
 
-    RegisterType getByDepartment(String department);
+    List<RegisterType> getByDepartment(String department);
 
     PageInfo<RegisterType> pageRegister(RegisterTypePageRequest pageRequest);
 
@@ -31,4 +31,13 @@ public interface PatientService {
     void newPass(NewPassRequest newPassRequest);
 
     void register(RegisterType registerType, Patient patient);
+
+
+
+
+
+    //将患者信息的失约次数加一(唯一确定订单信息)
+    void updatePatientMessage(String patientName, String doctorName, Integer cost);
+
+    List<DoctorPageDTO> findAll();
 }

@@ -1,5 +1,8 @@
 server:
   port: 8086
+logging:
+  level:
+    com.megumi.hospitalregistersystem.dao: DEBUG
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/register_management?characterEncoding=utf-8&serverTimezone=UTC
@@ -11,3 +14,5 @@ spring:
       load-on-startup: 1
 mybatis:
   mapper-locations: classpath:dao/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

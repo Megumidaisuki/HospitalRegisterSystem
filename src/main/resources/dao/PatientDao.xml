@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.megumi.hospitalregistersystem.dao.PatientDao">
+    
+    <resultMap id="RegisterTypeMap" type="com.megumi.hospitalregistersystem.domain.RegisterType">
+        <id column="id" property="id"></id>
+        <result column="doctor_name" property="doctorName"></result>
+        <result column="date" property="date"></result>
+        <result column="register_amounts" property="registerAmounts"></result>
+        <result column="registered_amounts" property="registeredAmounts"></result>
+        <result column="type_id" property="typeId"></result>
+    </resultMap>
+    <resultMap id="intactRegisterMap" type="com.megumi.hospitalregistersystem.domain.RegisterType" extends="RegisterTypeMap">
+        <result property="typeMessage.id" column="id"></result>
+        <result property="typeMessage.typeName" column="type_name"></result>
+        <result property="typeMessage.cost" column="cost"></result>
+        <result property="typeMessage.continueTime" column="continue_time"></result>
+        <result property="typeMessage.department" column="department"></result>
+    </resultMap>
+    
     <insert id="save">
-        insert into patient (username,password,name,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
+        insert into patient (username,password,`name`,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
     </insert>
     <insert id="register">
         insert into register_message(type_id,cost,patient_name,doctor_name) values (#{typeId},#{cost},#{patientName},#{doctorName})
     </insert>
     <insert id="newPatientMessage">
-        insert into patient_message(name,age,gender,phone,email,discredit_times,doctor_name)values (#{patientName},#{age},#{gender},#{phone},#{email},#{discredit_times},#{doctorName})
+        insert into patient_message(`name`,age,gender,phone,email,discredit_times,doctor_name)values (#{patientName},#{age},#{gender},#{phone},#{email},#{discredit_times},#{doctorName})
     </insert>
     <update id="updateStatus">
         update register_message set status = 1 where id =#{id}
@@ -22,6 +39,9 @@
     <update id="updateRegisterType">
         update register_type set registered_amounts=registered_amounts+1 where id=#{id}
     </update>
+    <update id="updatePatientMessage">
+        update patient_message set discredit_times=discredit_times+1 where patient_name = #{patientName} and doctor_name = #{doctorName} and cost=#{cost}
+    </update>
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Patient">
         select * from patient where username=#{username}
     </select>
@@ -29,16 +49,24 @@
         select * from patient where username=#{username} and password=#{password}
     </select>
     <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+        select * from doctor
+            <where>
+                <if test="name!=null and name!=' '">
+                    name like concat('%',#{name},'%')
+                </if>
+                <if test="department!=null and department !=' '">
+                    department like concat('%',#{department},'%')
+                </if>
+            </where>
     </select>
-    <select id="getByDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
-        select r.*,t.type_name,t.cost,t.continue_time,t.department from register_type r right join type_message t on r.type_id=t.id where t.department=#{department}
+    <select id="getByDepartment" resultMap="intactRegisterMap">
+        select r.*,t.id,t.type_name,t.cost,t.continue_time,t.department from register_type r,type_message t where r.type_id=t.id and t.department=#{department}
     </select>
     <select id="getByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
         select t.*,r.doctor_name,r.register_amounts,r.registered_amounts,r.date from register_type r right join type_message t on r.type_id=t.id where t.type_name like concat('%',#{name},'%') and t.department like concat('%',#{department},'%')
     </select>
     <select id="getNameById" resultType="java.lang.String">
-        select name from patient where id = #{id}
+        select `name` from patient where id = #{id}
     </select>
     <select id="getRegisterMessageByName"
             resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
@@ -47,5 +75,12 @@
     <select id="getTypeMessageByRegisterType"
             resultType="com.megumi.hospitalregistersystem.domain.TypeMessage">
         select * from type_message where id=#{type_id}
+    </select>
+    <select id="getAccurateRegisterMessage"
+            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
+        select * from register_message where patient_name=#{name} and doctor_name=#{doctorName} and type_id = #{typeId}
+    </select>
+    <select id="findAll" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor
     </select>
 </mapper>

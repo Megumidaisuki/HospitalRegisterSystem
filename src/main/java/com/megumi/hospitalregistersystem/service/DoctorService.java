@@ -51,4 +51,6 @@ public interface DoctorService {
     void updateRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
 
     void updateStatus(RegisterMessage registerMessage);
+
+    List<Doctor> findAll();
 }

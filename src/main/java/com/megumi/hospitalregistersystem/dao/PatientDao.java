@@ -19,7 +19,7 @@ public interface PatientDao {
 
     List<Doctor> queryByNameAndDepartment(DoctorPageRequest pageRequest);
 
-    RegisterType getByDepartment(String department);
+    List<RegisterType> getByDepartment(String department);
 
     List<RegisterType> getByNameAndDepartment(RegisterTypePageRequest pageRequest);
 
@@ -39,4 +39,10 @@ public interface PatientDao {
     TypeMessage getTypeMessageByRegisterType(RegisterType registerType);
 
     void register(TypeMessage typeMessage, Patient patient, RegisterType registerType);
+
+    void updatePatientMessage(String patientName, String doctorName, Integer cost);
+
+    RegisterMessage getAccurateRegisterMessage(RegisterType registerType, Patient patient);
+
+    List<Doctor> findAll();
 }

@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.megumi.hospitalregistersystem.dao.DoctorDao">
     <insert id="save">
-        insert into doctor(username,password,name,age,gender,email,title,department,remark) values (#{username},#{password},#{name},#{age},#{gender},#{email},#{title},#{department},#{remark})
+        insert into doctor(username,password,`name`,age,gender,email,title,department,remark) values (#{username},#{password},#{name},#{age},#{gender},#{email},#{title},#{department},#{remark})
     </insert>
     <update id="update">
-        update doctor set (name,age,gender,email,title,department,remark) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark}) where id=#{id}
+        update doctor set (`name`,age,gender,email,title,department,remark) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark}) where id=#{id}
     </update>
     <update id="updateSchedule">
-        update arrangement_message set (time_scope,type_id,register_amounts,registered_amount,date) values (#{timeScope},#{typeId},#{registerAmounts},#{registeredAmounts},#{date}) where id=#{id}
+        update arrangement_message set (time_scope,type_id,register_amounts,registered_amount,`date`) values (#{timeScope},#{typeId},#{registerAmounts},#{registeredAmounts},#{date}) where id=#{id}
     </update>
     <update id="updateTemplate">
         update arrangement_template set (time_scope,type_id,register_amounts) values (#{time_scope},#{typeId},#{registerAmounts}) where id=#{id}
@@ -20,19 +20,19 @@
         update doctor set password=#{newPass} where username=#{username} and password=#{password}
     </update>
     <update id="updateRegisterTypeByArrangement">
-        update register_type set doctor_name=#{doctorName},type_id=#{typeId}},register_amounts=#{registerAmounts},registered_amounts=#{registeredAmounts},date=#{date} where id=#{id}
+        update register_type set doctor_name=#{doctorName},type_id=#{typeId},register_amounts=#{registerAmounts},registered_amounts=#{registeredAmounts},`date`=#{date} where id=#{id}
     </update>
     <update id="updateStatus">
         update register_message set order_status=1 where id=#{id}
     </update>
     <select id="setMessageFollowed">
-        select cost,time,department from type_message where id =#{typeId}
+        select cost,time,department from type_message where id=#{typeId}
     </select>
     <insert id="setMessage">
-        insert into arrangement_message(doctor_name,time_scope,type_id,register_amounts,date) values (#{doctorName},#{timeScope},#{typeId},#{registerAmounts},#{date})
+        insert into arrangement_message(doctor_name,time_scope,type_id,register_amounts,`date`) values (#{doctorName},#{timeScope},#{typeId},#{registerAmounts},#{date})
     </insert>
     <delete id="deleteSchedule">
-        delete from arrangement_message where doctor_name = #{doctorName} and time_scope = #{timeScope} and type_id = #{typeId} and register_amounts = #{registeredAmounts} and date =#{date}
+        delete from arrangement_message where doctor_name = #{doctorName} and time_scope = #{timeScope} and type_id = #{typeId} and register_amounts = #{registeredAmounts} and `date` =#{date}
     </delete>
     <delete id="deleteTemplate">
         delete from arrangement_template where time_scope = #{timeScope} and type_id = #{typeId} and register_amounts = #{registeredAmounts}
@@ -44,7 +44,7 @@
         insert into arrangement_template(id,time_scope,type_id,register_amounts) values (#{id},#{timeScope},#{typeId},#{registerAmounts})
     </insert>
     <insert id="newRegisterTypeByArrangement">
-        insert into register_type(doctor_name,date,register_amounts,registered_amounts,type_id) values (#{doctorName},#{date},#{registerAmounts},#{registeredAmounts},#{typeId})
+        insert into register_type(doctor_name,`date`,register_amounts,registered_amounts,type_id) values (#{doctorName},#{date},#{registerAmounts},#{registeredAmounts},#{typeId})
     </insert>
 
     <select id="getById" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
@@ -57,7 +57,15 @@
         select * from doctor where username=#{username}
     </select>
     <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor where name like concat('%',#{name},'%') and department like concat('%',#{department},'%')
+        select * from doctor
+            <where>
+                <if test="name!=null and name !=' '">
+                    name like concat('%',#{name},'%')
+                </if>
+                <if test="department!=null and department!=' '">
+                    department like concat('%',#{department},'%')
+                </if>
+            </where>
     </select>
     <select id="getByName" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
         select * from arrangement_message where doctor_name=#{name}
@@ -66,7 +74,7 @@
         select * from arrangement_template
     </select>
     <select id="getMessageByDate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
-        select * from arrangement_message where date = #{date}
+        select * from arrangement_message where `date` = #{date}
     </select>
     <select id="getPatientMessage" resultType="com.megumi.hospitalregistersystem.domain.PatientMessage">
         select * from patient_message where doctor_name = #{name}
@@ -74,5 +82,8 @@
     <select id="getRegisterMessageByName"
             resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
         select * from register_message where doctor_name = #{name}
+    </select>
+    <select id="findAll" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select * from doctor
     </select>
 </mapper>

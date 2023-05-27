@@ -242,6 +242,12 @@ public class DoctorServiceImpl implements DoctorService {
         doctorDao.updateStatus(registerMessage);
     }
 
+    //分页查询医生信息的初始化————查询所有医生信息
+    @Override
+    public List<Doctor> findAll() {
+        return doctorDao.findAll();
+    }
+
     //按天复制排班信息
     @Override
     public void copyByDay(String date, String targetDate) {

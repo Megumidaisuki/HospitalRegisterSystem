@@ -57,4 +57,6 @@ public interface DoctorDao {
     List<RegisterMessage> getRegisterMessageByName(Doctor doctor);
 
     void updateStatus(RegisterMessage registerMessage);
+
+    List<Doctor> findAll();
 }
