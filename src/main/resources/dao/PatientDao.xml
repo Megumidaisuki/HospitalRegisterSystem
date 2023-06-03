@@ -1,86 +1,382 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.megumi.hospitalregistersystem.dao.PatientDao">
-    
+
+
     <resultMap id="RegisterTypeMap" type="com.megumi.hospitalregistersystem.domain.RegisterType">
-        <id column="id" property="id"></id>
-        <result column="doctor_name" property="doctorName"></result>
-        <result column="date" property="date"></result>
-        <result column="register_amounts" property="registerAmounts"></result>
-        <result column="registered_amounts" property="registeredAmounts"></result>
-        <result column="type_id" property="typeId"></result>
+        <id column="id" property="id"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="date" property="date"/>
+        <result column="register_amounts" property="registerAmounts"/>
+        <result column="registered_amounts" property="registeredAmounts"/>
+        <result column="type_id" property="typeId"/>
+        <result column="time_scope" property="timeScope"/>
+        <result column="regist" property="regist"/>
     </resultMap>
-    <resultMap id="intactRegisterMap" type="com.megumi.hospitalregistersystem.domain.RegisterType" extends="RegisterTypeMap">
-        <result property="typeMessage.id" column="id"></result>
-        <result property="typeMessage.typeName" column="type_name"></result>
-        <result property="typeMessage.cost" column="cost"></result>
-        <result property="typeMessage.continueTime" column="continue_time"></result>
-        <result property="typeMessage.department" column="department"></result>
+
+    <resultMap id="intactRegisterMessage" type="com.megumi.hospitalregistersystem.domain.RegisterMessage"
+               extends="RegisterMessageMap">
+        <result column="type_name" property="typeMessage.typeName"/>
+        <result column="cost" property="typeMessage.cost"/>
+        <result column="continue_time" property="typeMessage.continueTime"/>
+        <result column="department" property="typeMessage.department"/>
+        <result column="time_scope" property="registerType.timeScope"/>
     </resultMap>
-    
+    <resultMap id="PatientMessageMap" type="com.megumi.hospitalregistersystem.domain.PatientMessage">
+        <result column="name" property="name"/>
+        <result column="discredit_times" property="discreditTimes"/>
+        <result column="doctor_name" property="doctorName"/>
+    </resultMap>
+
+
+    <resultMap id="intactRegisterMessageMap" type="com.megumi.hospitalregistersystem.domain.RegisterMessage"
+               extends="RegisterMessageMap">
+        <result column="p.id" property="patientMessage.id"/>
+        <result column="name" property="patientMessage.name"/>
+        <result column="age" property="patientMessage.age"/>
+        <result column="gender" property="patientMessage.gender"/>
+        <result column="phone" property="patientMessage.phone"/>
+        <result column="discredit_times" property="patientMessage.discreditTimes"/>
+        <result column="doctor_name" property="patientMessage.doctorName"/>
+    </resultMap>
+    <!--    连表查询register_type和type_message表用的resultMap-->
+    <resultMap id="intactRegisterMap" type="com.megumi.hospitalregistersystem.domain.RegisterType"
+               extends="RegisterTypeMap">
+        <result property="typeMessage.id" column="t.id"/>
+        <result property="typeMessage.typeName" column="type_name"/>
+        <result property="typeMessage.cost" column="cost"/>
+        <result property="typeMessage.continueTime" column="continue_time"/>
+        <result property="typeMessage.department" column="department"/>
+    </resultMap>
+
+
+    <!--    查询type_message表用的resultMap-->
+    <resultMap id="TypeMessageMap" type="com.megumi.hospitalregistersystem.domain.TypeMessage">
+        <result column="type_name" property="typeName"/>
+        <result column="continue_time" property="continueTime"/>
+    </resultMap>
+
+
+    <!--    查询register_message表用的resultMap-->
+    <resultMap id="RegisterMessageMap" type="com.megumi.hospitalregistersystem.domain.RegisterMessage">
+        <result column="type_id" property="typeId"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="order_id" property="orderId"/>
+        <result column="time_scope" property="timeScope"/>
+    </resultMap>
+
+
+    <!--    <select id="getByDepartment" resultMap="intactRegisterMap">-->
+    <!--        select r.*,t.id,t.type_name,t.cost,t.continue_time,t.department from register_type r,type_message t where r.type_id=t.id and t.department=#{department}-->
+    <!--    </select>-->
+
+
     <insert id="save">
-        insert into patient (username,password,`name`,gender,age,phone,email) values (#{username},#{password},#{name},#{gender},#{age},#{phone},#{email})
+        insert into patient (username, password, `name`, gender, age, phone)
+        values (#{username}, #{password}, #{name}, #{gender}, #{age}, #{phone})
     </insert>
+
+
     <insert id="register">
-        insert into register_message(type_id,cost,patient_name,doctor_name) values (#{typeId},#{cost},#{patientName},#{doctorName})
+        insert into register_message(type_id, cost, patient_name, doctor_name, order_id, time_scope,department)
+        values (#{typeId}, #{cost}, #{patientName}, #{doctorName}, #{orderId}, #{timeScope},#{department})
     </insert>
+
     <insert id="newPatientMessage">
-        insert into patient_message(`name`,age,gender,phone,email,discredit_times,doctor_name)values (#{patientName},#{age},#{gender},#{phone},#{email},#{discredit_times},#{doctorName})
+        insert into patient_message(`name`, age, gender, phone, discredit_times, doctor_name)
+        values (#{name}, #{age}, #{gender}, #{phone}, #{discreditTimes}, #{doctorName})
     </insert>
+
+
     <update id="updateStatus">
-        update register_message set status = 1 where id =#{id}
+        update register_message
+        set status = 1
+        where id = #{id}
     </update>
+
+
     <update id="updatePassword">
-        update patient set password=#{newPass} where username =#{username} and password =#{password}
+        update patient
+        set password=#{newPass}
+        where username = #{username}
+          and password = #{password}
     </update>
+
+
     <update id="updateArrangementMessage">
-        update arrangement_message set registered_amounts=registered_amounts+1 where doctor_name = #{doctorName} and register_type=#{name} where id=#{id}
+        update arrangement_message
+        set registered_amounts=registered_amounts + 1
+        where doctor_name = #{doctorName}
+          and register_amounts = #{registerAmounts}
     </update>
+
+
     <update id="updateRegisterType">
-        update register_type set registered_amounts=registered_amounts+1 where id=#{id}
+        update register_type
+        set registered_amounts=registered_amounts + 1
+        where id = #{id}
     </update>
+
+
     <update id="updatePatientMessage">
-        update patient_message set discredit_times=discredit_times+1 where patient_name = #{patientName} and doctor_name = #{doctorName} and cost=#{cost}
+        update patient_message
+        set discredit_times=discredit_times + 1
+        where patient_name = #{patientName}
+          and doctor_name = #{doctorName}
+          and cost = #{cost}
     </update>
+    <update id="pay">
+        update register_message
+        set order_status = 2
+        where id = #{id};
+    </update>
+    <delete id="deleteHistoryRegisterMessage">
+        delete
+        from register_message
+        where id = #{id}
+    </delete>
+
+
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Patient">
-        select * from patient where username=#{username}
+        select *
+        from patient
+        where username = #{username}
     </select>
+
+
+    <select id="getRegisterMessage" resultMap="RegisterMessageMap">
+        select *
+        from register_message
+        where type_id = #{typeId}
+          and cost = #{cost}
+          and patient_name = #{patientName}
+          and doctor_name = #{doctorName}
+          and order_id = #{orderId}
+    </select>
+
+
     <select id="login" resultType="com.megumi.hospitalregistersystem.domain.Patient">
-        select * from patient where username=#{username} and password=#{password}
+        select *
+        from patient
+        where username = #{username}
+          and password = #{password}
     </select>
-    <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor
-            <where>
-                <if test="name!=null and name!=' '">
-                    name like concat('%',#{name},'%')
-                </if>
-                <if test="department!=null and department !=' '">
-                    department like concat('%',#{department},'%')
-                </if>
-            </where>
-    </select>
-    <select id="getByDepartment" resultMap="intactRegisterMap">
-        select r.*,t.id,t.type_name,t.cost,t.continue_time,t.department from register_type r,type_message t where r.type_id=t.id and t.department=#{department}
-    </select>
-    <select id="getByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.RegisterType">
-        select t.*,r.doctor_name,r.register_amounts,r.registered_amounts,r.date from register_type r right join type_message t on r.type_id=t.id where t.type_name like concat('%',#{name},'%') and t.department like concat('%',#{department},'%')
-    </select>
-    <select id="getNameById" resultType="java.lang.String">
-        select `name` from patient where id = #{id}
-    </select>
-    <select id="getRegisterMessageByName"
-            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
-        select * from register_message where patient_name=#{name}
-    </select>
-    <select id="getTypeMessageByRegisterType"
-            resultType="com.megumi.hospitalregistersystem.domain.TypeMessage">
-        select * from type_message where id=#{type_id}
-    </select>
-    <select id="getAccurateRegisterMessage"
-            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
-        select * from register_message where patient_name=#{name} and doctor_name=#{doctorName} and type_id = #{typeId}
-    </select>
+
+
     <select id="findAll" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor
+        select *
+        from doctor
     </select>
+
+
+    <select id="getDepartmentByDateAndTimeScope" resultType="java.lang.String">
+        select distinct(t.department)
+        from register_type r,
+             type_message t
+        where r.`date` = #{date}
+          and r.time_scope = #{timeScope}
+          and r.type_id = t.id
+    </select>
+
+
+    <select id="getNameByDateAndTimeScopeAndDepartment" resultType="java.lang.String">
+        select r.doctor_name
+        from register_type r,
+             type_message t
+        where r.type_id = t.id
+          and r.`date` = #{date}
+          and r.time_scope = #{timeScope}
+          and t.department = #{department}
+    </select>
+
+
+    <select id="getTypeByDateAndTimeScopeAndDepartmentAndName"
+            resultMap="RegisterTypeMap">
+        select r.*
+        from register_type r,
+             type_message t
+        where r.type_id = t.id
+          and t.department = #{department}
+          and r.doctor_name = #{name}
+          and r.time_scope = #{timeScope}
+            and r.date = #{date}
+    </select>
+
+
+    <select id="getNameById" resultType="java.lang.String">
+        select `name`
+        from patient
+        where id = #{id}
+    </select>
+
+    <!--    r.doctor_name,t.department,r.create_time,rt.time_scope,r.cost,r.order_status,r.order_id-->
+    <select id="getRegisterMessageByName"
+            resultMap="RegisterMessageMap">
+        select distinct (id),
+                        doctor_name,
+                        department,
+                        create_time,
+                        time_scope,
+                        cost,
+                        order_status,
+                        order_id
+        from register_message
+
+        where patient_name = #{name}
+
+    </select>
+
+
+    <select id="getTypeMessageByRegisterType"
+            resultMap="TypeMessageMap">
+        select *
+        from type_message
+        where id = #{typeId}
+    </select>
+
+
+    <select id="getAccurateRegisterMessage"
+            resultMap="RegisterMessageMap">
+        select *
+        from register_message
+        where patient_name = #{name}
+          and doctor_name = #{doctorName}
+          and type_id = #{typeId}
+    </select>
+
+
+    <select id="getHistoryRegister" resultMap="RegisterMessageMap">
+        select distinct (id),
+                        doctor_name,
+                        department,
+                        create_time,
+                        time_scope,
+                        cost,
+                        order_status,
+                        order_id
+        from register_message
+
+        where patient_name = #{name} and order_status = 2
+    </select>
+
+
+    <select id="getAllRegisterType" resultMap="intactRegisterMap">
+        select r.*, t.*
+        from register_type r,
+             type_message t
+        where r.type_id = t.id
+    </select>
+
+
+    <select id="getMessageByDate" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where date = #{date}
+    </select>
+
+
+    <select id="getMessageByDateAndTimeScope"
+            resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where `date` = #{date}
+          and time_scope = #{timeScope}
+    </select>
+
+
+    <select id="getMessageByDateAndTimeScopeAndDepartmentAndName"
+            resultMap="intactRegisterMap">
+
+        select * from register_type r,type_message t
+        where r.type_id = t.id and r.date=#{date} and r.time_scope = #{timeScope}
+
+        <if test="name !=null and name!=''">
+            and r.doctor_name like concat('%',#{name},'%')
+        </if>
+        <if test="department!=null and department !=''">
+            <if test="name!=null and name!=''">
+                and t.department like concat('%',#{department},'%')
+            </if>
+        </if>
+    </select>
+
+
+    <select id="getById" resultType="com.megumi.hospitalregistersystem.domain.Patient">
+        select *
+        from patient
+        where id = #{id}
+    </select>
+    <select id="getDoctorById" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+        select *
+        from doctor
+        where id = #{id}
+    </select>
+    <select id="getRegisterTypeById" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where id = #{id}
+    </select>
+
 </mapper>
+
+
+        <!--`<select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">-->
+        <!--select * from doctor-->
+        <!--where-->
+        <!--<if test="name!=null and name!=' '">-->
+        <!--    name like concat('%',#{name},'%')-->
+        <!--</if>-->
+        <!--<if test="department!=null and department !=' '">-->
+        <!--    <if test="name!=null and name!=' '">-->
+        <!--        and-->
+        <!--    </if>-->
+        <!--    department like concat('%',#{department},'%')-->
+        <!--</if>-->
+        <!--</select>`-->
+
+
+        <!--    <select id="getByNameAndDepartment" resultMap="intactRegisterMap">-->
+        <!--        select r.*, t.id, t.type_name, t.cost, t.continue_time, t.department-->
+        <!--        from register_type r,-->
+        <!--             type_message t-->
+        <!--        where r.type_id = t.id-->
+        <!--          and t.type_name like concat('%', #{name}, '%')-->
+        <!--          and t.department like concat('%', #{department}, '%')-->
+        <!--    </select>-->
+
+
+        <!--    <select id="getDoctorByDepartment" resultType="java.lang.String">-->
+        <!--        select r.doctor_name from register_type r,type_message t where r.type_id = t.id and t.department=#{department}-->
+        <!--    </select>-->
+
+
+        <!--    <select id="getByDepartmentAndName" resultMap="intactRegisterMap">-->
+        <!--        select r.*,t.id,t.type_name,t.cost,t.continue_time,t.department from register_type r,type_message t where r.type_id=t.id and t.department=#{department} and r.doctor_name=#{doctorName}-->
+        <!--    </select>-->
+
+
+        <!--    <select id="getDepartment" resultType="java.lang.String">-->
+        <!--        select department from department-->
+        <!--    </select>-->
+
+
+        <!--    <select id="darkRegister" resultMap="intactRegisterMap">-->
+        <!--        select-->
+        <!--            r.id,r.doctor_name,t.department,t.continue_time,t.cost-->
+        <!--        from register_type r,type_message t-->
+        <!--        where-->
+        <!--            r.type_id=t.id and-->
+        <!--            <if test="r.doctor_name!=null and r.doctor_name != ' '">-->
+        <!--                r.doctor_name like concat('%',#{doctorName},'%')-->
+        <!--            </if>-->
+        <!--        <if test="r.doctor_name!=null and r.doctor_name != ' '">-->
+        <!--            and-->
+        <!--        </if>-->
+        <!--           <if test="t.department!=null and t.department!=' '">-->
+        <!--               t.department like concat('%',#{department},'%')-->
+        <!--           </if>-->
+        <!--    </select>-->
+
+

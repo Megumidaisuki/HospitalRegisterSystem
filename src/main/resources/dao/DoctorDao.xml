@@ -1,89 +1,364 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.megumi.hospitalregistersystem.dao.DoctorDao">
+    <resultMap id="PatientMessageMap" type="com.megumi.hospitalregistersystem.domain.PatientMessage">
+        <result column="discredit_times" property="discreditTimes"/>
+        <result column="doctor_name" property="doctorName"/>
+    </resultMap>
+
+
+    <resultMap id="intactRegisterMessageMap" type="com.megumi.hospitalregistersystem.domain.RegisterMessage"
+               extends="RegisterMessageMap">
+        <result column="p.id" property="patientMessage.id"/>
+        <result column="name" property="patientMessage.name"/>
+        <result column="age" property="patientMessage.age"/>
+        <result column="gender" property="patientMessage.gender"/>
+        <result column="phone" property="patientMessage.phone"/>
+        <result column="discredit_times" property="patientMessage.discreditTimes"/>
+        <result column="doctor_name" property="patientMessage.doctorName"/>
+    </resultMap>
+
+    <resultMap id="specialRegisterMessageMap" type="com.megumi.hospitalregistersystem.domain.RegisterMessage" extends="RegisterMessageMap">
+        <result column="date" property="registerType.date"/>
+        <result column="type_name" property="typeMessage.typeName"/>
+    </resultMap>
+
+    <resultMap id="RegisterTypeMap" type="com.megumi.hospitalregistersystem.domain.RegisterType">
+        <id column="id" property="id"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="date" property="date"/>
+        <result column="register_amounts" property="registerAmounts"/>
+        <result column="registered_amounts" property="registeredAmounts"/>
+        <result column="type_id" property="typeId"/>
+        <result column="time_scope" property="timeScope"/>
+    </resultMap>
+
+
+    <!--    连表查询register_type和type_message表用的resultMap-->
+    <resultMap id="intactRegisterTypeMap" type="com.megumi.hospitalregistersystem.domain.RegisterType"
+               extends="RegisterTypeMap">
+        <result property="typeMessage.id" column="t.id"/>
+        <result property="typeMessage.typeName" column="type_name"/>
+        <result property="typeMessage.cost" column="cost"/>
+        <result property="typeMessage.continueTime" column="continue_time"/>
+        <result property="typeMessage.department" column="department"/>
+    </resultMap>
+
+
+    <!--    查询type_message表用的resultMap-->
+    <resultMap id="TypeMessageMap" type="com.megumi.hospitalregistersystem.domain.TypeMessage">
+        <result column="type_name" property="typeName"/>
+        <result column="continue_time" property="continueTime"/>
+    </resultMap>
+
+
+    <!--    查询register_message表用的resultMap-->
+    <resultMap id="RegisterMessageMap" type="com.megumi.hospitalregistersystem.domain.RegisterMessage">
+        <result column="type_id" property="typeId"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="order_id" property="orderId"/>
+        <result column="time_scope" property="timeScope"/>
+    </resultMap>
+
+
     <insert id="save">
-        insert into doctor(username,password,`name`,age,gender,email,title,department,remark) values (#{username},#{password},#{name},#{age},#{gender},#{email},#{title},#{department},#{remark})
+        insert into doctor(username, password)
+        values (#{username}, #{password})
     </insert>
-    <update id="update">
-        update doctor set (`name`,age,gender,email,title,department,remark) values (#{name},#{age},#{gender},#{email},#{title},#{department},#{remark}) where id=#{id}
-    </update>
-    <update id="updateSchedule">
-        update arrangement_message set (time_scope,type_id,register_amounts,registered_amount,`date`) values (#{timeScope},#{typeId},#{registerAmounts},#{registeredAmounts},#{date}) where id=#{id}
-    </update>
-    <update id="updateTemplate">
-        update arrangement_template set (time_scope,type_id,register_amounts) values (#{time_scope},#{typeId},#{registerAmounts}) where id=#{id}
-    </update>
-    <update id="updatePatientMessage">
-        update patient_message set discredit_times=discredit_times+1 where id=#{id}
-    </update>
-    <update id="updatePassword">
-        update doctor set password=#{newPass} where username=#{username} and password=#{password}
-    </update>
-    <update id="updateRegisterTypeByArrangement">
-        update register_type set doctor_name=#{doctorName},type_id=#{typeId},register_amounts=#{registerAmounts},registered_amounts=#{registeredAmounts},`date`=#{date} where id=#{id}
-    </update>
-    <update id="updateStatus">
-        update register_message set order_status=1 where id=#{id}
-    </update>
-    <select id="setMessageFollowed">
-        select cost,time,department from type_message where id=#{typeId}
-    </select>
-    <insert id="setMessage">
-        insert into arrangement_message(doctor_name,time_scope,type_id,register_amounts,`date`) values (#{doctorName},#{timeScope},#{typeId},#{registerAmounts},#{date})
-    </insert>
-    <delete id="deleteSchedule">
-        delete from arrangement_message where doctor_name = #{doctorName} and time_scope = #{timeScope} and type_id = #{typeId} and register_amounts = #{registeredAmounts} and `date` =#{date}
-    </delete>
-    <delete id="deleteTemplate">
-        delete from arrangement_template where time_scope = #{timeScope} and type_id = #{typeId} and register_amounts = #{registeredAmounts}
-    </delete>
-    <delete id="deleteRegisterTypeByArrangement">
-        delete from register_type where type_id=#{typeId} and doctor_name = #{doctorName} and register_amounts=#{registerAmounts} and registered_amounts=#{registeredAmounts} and date=#{date}
-    </delete>
     <insert id="newTemplate">
-        insert into arrangement_template(id,time_scope,type_id,register_amounts) values (#{id},#{timeScope},#{typeId},#{registerAmounts})
+        insert into arrangement_template(doctor_name, type_id, register_amounts, time_scope)
+        values (#{doctorName}, #{typeId}, #{registerAmounts}, #{timeScope})
     </insert>
-    <insert id="newRegisterTypeByArrangement">
-        insert into register_type(doctor_name,`date`,register_amounts,registered_amounts,type_id) values (#{doctorName},#{date},#{registerAmounts},#{registeredAmounts},#{typeId})
+    <insert id="addTypeMessage">
+        insert into type_message(type_name, cost, continue_time, department)
+        values (#{typeName}, #{cost}, #{continueTime},
+                #{department})values (#{name}, #{date}, #{registerAmounts}, #{typeId}, #{timeScope})
+    </insert>
+    <insert id="addRegisterType">
+        insert into register_type(doctor_name, `date`, register_amounts, type_id, time_scope)
+        values (#{name}, #{date}, #{registerAmounts}, #{typeId}, #{timeScope})
     </insert>
 
+
+    <update id="update">
+        update doctor
+        set `name`=#{name},
+            age=#{age},
+            gender=#{gender},
+            title=#{title},
+            department=#{department},
+            remark=#{remark},
+            phone=#{phone},
+            specialty=#{specialty},
+            nation=#{nation},
+            nationality=#{nationality},
+            education=#{education}
+        where id = #{id}
+    </update>
+
+    <update id="updateSchedule">
+        update arrangement_message
+        set time_scope=#{timeScope},
+            type_id=#{typeId},
+            register_amounts=#{registerAmounts},
+            registered_amount=#{registeredAmounts},
+            `date`=#{date}
+        where id = #{id}
+    </update>
+    <update id="updateTemplate">
+        update arrangement_template
+        set time_scope=#{timeScope},
+            type_id=#{typeId},
+            register_amounts=#{registerAmounts}
+        where id = #{id}
+    </update>
+    <update id="updatePatientMessage">
+        update patient_message
+        set name            = #{name},
+            age             = #{age},
+            gender          = #{gender},
+            phone           = #{phone},
+            discredit_times = #{discreditTimes},
+            doctor_name     = #{doctorName}
+        where id = #{id}
+    </update>
+    <update id="updatePassword">
+        update doctor
+        set password=#{newPass}
+        where username = #{username}
+          and password = #{password}
+    </update>
+    <update id="updateStatus">
+        update register_message
+        set order_status=1
+        where id = #{id}
+    </update>
+    <update id="updateRegisterMessage">
+        update register_message
+        set diagnosis = #{diagnosis} and symptom = #{symptom}
+        where id = #{id}
+    </update>
+    <delete id="deleteTypeMessage">
+        delete
+        from type_message
+        where id = #{id}
+    </delete>
+    <delete id="deleteRegisterType">
+        delete
+        from register_type
+        where id = #{id}
+    </delete>
+    <delete id="deleteRegisterMessage">
+        delete
+        from register_message
+        where id = #{id}
+    </delete>
+
+
+    <select id="getAllRegisterType" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where doctor_name = #{name}
+    </select>
+
+
     <select id="getById" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor where id = #{id}
+        select *
+        from doctor
+        where id = #{id}
     </select>
     <select id="login" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor where username=#{username} and password=#{password}
+        select *
+        from doctor
+        where username = #{username}
+          and password = #{password}
     </select>
     <select id="getByUsername" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor where username=#{username}
-    </select>
-    <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor
-            <where>
-                <if test="name!=null and name !=' '">
-                    name like concat('%',#{name},'%')
-                </if>
-                <if test="department!=null and department!=' '">
-                    department like concat('%',#{department},'%')
-                </if>
-            </where>
-    </select>
-    <select id="getByName" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
-        select * from arrangement_message where doctor_name=#{name}
-    </select>
-    <select id="getAllTemplate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementTemplate">
-        select * from arrangement_template
-    </select>
-    <select id="getMessageByDate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">
-        select * from arrangement_message where `date` = #{date}
-    </select>
-    <select id="getPatientMessage" resultType="com.megumi.hospitalregistersystem.domain.PatientMessage">
-        select * from patient_message where doctor_name = #{name}
-    </select>
-    <select id="getRegisterMessageByName"
-            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">
-        select * from register_message where doctor_name = #{name}
+        select *
+        from doctor
+        where username = #{username}
     </select>
     <select id="findAll" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
-        select * from doctor
+        select *
+        from doctor
     </select>
+    <select id="getTypeMessage" resultMap="TypeMessageMap">
+        select *
+        from type_message
+        where department = #{department}
+    </select>
+    <select id="getDoctor" resultType="com.megumi.hospitalregistersystem.domain.Doctor">
+
+
+    </select>
+    <select id="getTypeIdByTypeName" resultType="java.lang.Integer">
+        select id
+        from type_message
+        where type_name = #{typeName}
+    </select>
+    <select id="getRegisterTypeByDate" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where `date` = #{date}    </select>
+    <select id="getFirstStatusRegisterType" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where registered_amounts = 0;
+    </select>
+    <select id="getSecondStatusRegisterType" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where registered_amounts > 0
+    </select>
+    <select id="getThirdStatusRegisterType" resultMap="RegisterTypeMap">
+        select *
+        from register_type
+        where registered_amounts = register_amounts
+    </select>
+    <select id="getFullRegisterMessage" resultMap="RegisterMessageMap">
+        select *
+        from register_message
+        where doctor_name =#{name} and order_status = 1 or order_status=2
+    </select>
+    <select id="getPatientMessage" resultMap="PatientMessageMap">
+        select *
+        from patient_message
+        where doctor_name = #{name}
+    </select>
+    <select id="getHistoryRegisterMessage" resultMap="RegisterMessageMap">
+        select *
+        from register_message
+        where patient_name = #{patientName}
+          and doctor_name = #{doctorName}
+    </select>
+    <select id="getRegisterMessageOne" resultMap="intactRegisterMessageMap">
+        select p.name, p.age, p.gender, r.symptom, r.diagnosis
+        from register_message r,
+             patient_message p
+        where r.patient_name = p.name
+          and r.doctor_name = p.doctor_name
+          and r.doctor_name = #{name}
+          and r.order_status = 1
+    </select>
+    <select id="getRegisterMessageTwo" resultMap="intactRegisterMessageMap">
+        select p.name, p.age, p.gender, r.symptom, r.diagnosis
+        from register_message r,
+             patient_message p
+        where r.patient_name = p.name
+          and r.doctor_name = p.doctor_name
+          and r.doctor_name = #{name}
+          and r.order_status = 2
+    </select>
+    <select id="getTypeIdByName" resultType="java.lang.String">
+        select id
+        from type_message
+        where type_name = #{typeName}
+    </select>
+    <select id="getSpecialRegisterMessage"
+            resultMap="specialRegisterMessageMap">
+        SELECT DISTINCT r.id, rt.date, r.time_scope, t.type_name, r.department, r.order_status
+        FROM register_message r
+                 JOIN register_type rt ON r.time_scope = rt.time_scope
+                 JOIN type_message t ON rt.type_id = t.id
+    </select>
+
+    <!--    <update id="updateRegisterTypeByArrangement">-->
+    <!--        update register_type-->
+    <!--        set doctor_name=#{doctorName},-->
+    <!--            type_id=#{typeId},-->
+    <!--            register_amounts=#{registerAmounts},-->
+    <!--            registered_amounts=#{registeredAmounts},-->
+    <!--            `date`=#{date}-->
+    <!--        where id = #{id}-->
+    <!--    </update>-->
+
+    <!--    <select id="setMessageFollowed">-->
+    <!--        select cost, time, department-->
+    <!--        from type_message-->
+    <!--        where id=#{typeId}-->
+    <!--    </select>-->
+    <!--    <insert id="setMessage">-->
+    <!--        insert into arrangement_message(doctor_name, time_scope, type_id, register_amounts, `date`)-->
+    <!--        values (#{doctorName}, #{timeScope}, #{typeId}, #{registerAmounts}, #{date})-->
+    <!--    </insert>-->
+    <!--    <delete id="deleteSchedule">-->
+    <!--        delete-->
+    <!--        from arrangement_message-->
+    <!--        where doctor_name = #{doctorName}-->
+    <!--          and time_scope = #{timeScope}-->
+    <!--          and type_id = #{typeId}-->
+    <!--          and register_amounts = #{registeredAmounts}-->
+    <!--          and `date` = #{date}-->
+    <!--    </delete>-->
+    <!--    <delete id="deleteTemplate">-->
+    <!--        delete-->
+    <!--        from arrangement_template-->
+    <!--        where time_scope = #{timeScope}-->
+    <!--          and type_id = #{typeId}-->
+    <!--          and register_amounts = #{registeredAmounts}-->
+    <!--    </delete>-->
+    <!--    <delete id="deleteRegisterTypeByArrangement">-->
+    <!--        delete-->
+    <!--        from register_type-->
+    <!--        where type_id = #{typeId}-->
+    <!--          and doctor_name = #{doctorName}-->
+    <!--          and register_amounts = #{registerAmounts}-->
+    <!--          and registered_amounts = #{registeredAmounts}-->
+    <!--          and date =#{date}-->
+    <!--    </delete>-->
+    <!--    <delete id="deleteTypeMessage">-->
+    <!--        delete-->
+    <!--        from type_message-->
+    <!--        where id = #{id}-->
+    <!--    </delete>-->
+
+    <!--    <insert id="newRegisterTypeByArrangement">-->
+    <!--        insert into register_type(doctor_name, `date`, register_amounts, registered_amounts, type_id)-->
+    <!--        values (#{doctorName}, #{date}, #{registerAmounts}, #{registeredAmounts}, #{typeId})-->
+    <!--    </insert>-->
+    <!--    <insert id="addTypeMessage">-->
+    <!--        insert into type_message(id, type_name, cost, continue_time, department)-->
+    <!--        values (#{id}, #{typeName}, #{cost}, #{continueTime}, #{department})-->
+    <!--    </insert>-->
+    <!--    <insert id="addRegisterType">-->
+    <!--        insert into register_type(doctor_name,`date`,register_amounts,)-->
+    <!--    </insert>-->
+
+
+    <!--    <select id="queryByNameAndDepartment" resultType="com.megumi.hospitalregistersystem.domain.Doctor">-->
+    <!--        select * from doctor-->
+    <!--        <where>-->
+    <!--            <if test="name!=null and name !=' '">-->
+    <!--                name like (#{name})-->
+    <!--            </if>-->
+    <!--                <if test="department!=null and department!=' '">-->
+    <!--                    and department like concat('%',#{department},'%')-->
+    <!--                </if>-->
+    <!--        </where>-->
+    <!--    </select>-->
+    <!--    <select id="getByName" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">-->
+    <!--        select *-->
+    <!--        from arrangement_message-->
+    <!--        where doctor_name = #{name}-->
+    <!--    </select>-->
+    <!--    <select id="getAllTemplate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementTemplate">-->
+    <!--        select *-->
+    <!--        from arrangement_template-->
+    <!--    </select>-->
+    <!--    <select id="getMessageByDate" resultType="com.megumi.hospitalregistersystem.domain.ArrangementMessage">-->
+    <!--        select *-->
+    <!--        from arrangement_message-->
+    <!--        where `date` = #{date}-->
+    <!--    </select>-->
+
+    <!--    <select id="getRegisterMessageByName"-->
+    <!--            resultType="com.megumi.hospitalregistersystem.domain.RegisterMessage">-->
+    <!--        select *-->
+    <!--        from register_message-->
+    <!--        where doctor_name = #{name}-->
+    <!--    </select>-->
+
+
 </mapper>

@@ -12,8 +12,12 @@ public class Doctor {
     private String name;
     private Integer age;
     private Integer gender;
-    private String email;
     private String title;
     private String department;
     private String remark;
+    private Long phone;
+    private String specialty;
+    private String nation;
+    private String nationality;
+    private String education;
 }

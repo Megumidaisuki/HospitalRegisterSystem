@@ -8,8 +8,7 @@ public class PatientMessage {
     private String name;
     private Integer age;
     private Integer gender;
-    private Integer phone;
-    private String email;
+    private Long phone;
     private Integer discreditTimes;
     private String doctorName;
 }

@@ -19,13 +19,13 @@ public interface DoctorService {
 
     void update(Doctor doctor);
 
-    PageInfo<Doctor> page(DoctorPageRequest pageRequest);
+//    PageInfo<Doctor> page(DoctorPageRequest pageRequest);
 
     List<ArrangementMessage> showSchedule(Doctor doctor);
 
     List<ArrangementTemplate> showTemplate();
 
-    void newTemplate(ArrangementTemplate arrangementType);
+//    void newTemplate(ArrangementTemplate arrangementType);
 
     void updateSchedule(ArrangementMessage arrangementMessage);
 
@@ -42,10 +42,10 @@ public interface DoctorService {
 
     void copyByWeek(int year, int week, int targetWeek);
 
-    List<PatientMessage> getPatientMessage(Doctor doctor);
+    List<PatientMessage> getPatientMessage();
 
-    void updatePatientMessage(Patient patient);
-    List<RegisterMessage> getHistory(Doctor doctor);
+    void updatePatientMessage(PatientMessage patient);
+    List<RegisterMessage> getHistory();
 
     void newPass(NewPassRequest newPassRequest);
     void updateRegisterTypeByArrangement(ArrangementMessage arrangementMessage);
@@ -53,4 +53,45 @@ public interface DoctorService {
     void updateStatus(RegisterMessage registerMessage);
 
     List<Doctor> findAll();
+
+    List<TypeMessage> getTypeMessage();
+
+    void addTypeMessage(TypeMessage typeMessage);
+
+    void deleteTypeMessage(Integer typeMessage);
+
+
+    Doctor getDoctor();
+
+    List<RegisterType> getAllRegisterType();
+
+    void addRegisterType(String name,String date,String registerAmounts,String typeName,String timeScope);
+
+    void deleteRegisterType(Integer id);
+
+    List<RegisterType> getRegisterTypeByDate(String date);
+
+    List<RegisterType> getFirstStatusRegisterType();
+
+    List<RegisterType> getSecondStatusRegisterType();
+
+    List<RegisterType> getThirdStatusRegisterType();
+
+    List<RegisterMessage> getFullRegisterMessage();
+
+    List<RegisterMessage> getHistoryRegisterMessage(String patientName);
+
+    void logout();
+
+    List<RegisterMessage> getRegisterMessageOne();
+
+    List<RegisterMessage> getRegisterMessageTwo();
+
+    void updateRegisterMessage(RegisterMessage registerMessage);
+
+    void deleteRegisterMessage(Integer id);
+
+    void newTemplate(String doctorName, String typeName, String registerAmounts, String timeScope);
+
+    List<RegisterMessage> getSpecialRegisterMessage();
 }

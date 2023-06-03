@@ -12,5 +12,8 @@ public class RegisterType  {
     private String registerAmounts;
     private String registeredAmounts;
     private Integer typeId;
+    private String timeScope;
     private TypeMessage typeMessage;
+    private String regist ="false";
+
 }

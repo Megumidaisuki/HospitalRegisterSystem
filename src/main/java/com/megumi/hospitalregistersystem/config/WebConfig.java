@@ -1,6 +1,7 @@
 package com.megumi.hospitalregistersystem.config;
 
 import com.megumi.hospitalregistersystem.interceptor.JwtInterceptor;
+import com.megumi.hospitalregistersystem.interceptor.PJwtInterceptor;
 import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,8 @@ public class WebConfig implements  WebMvcConfigurer {
 
     @Autowired
     JwtInterceptor jwtInterceptor;
+    @Autowired
+    PJwtInterceptor pJwtInterceptor;
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
@@ -27,6 +30,9 @@ public class WebConfig implements  WebMvcConfigurer {
 	// 加自定义拦截器JwtInterceptor，设置拦截规则
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/**/login");
+        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/doctor/**").excludePathPatterns("/api/doctor/login");
+        registry.addInterceptor(pJwtInterceptor).addPathPatterns("/api/patient/**").excludePathPatterns("/api/patient/login");
+
+
     }
-    }
+}

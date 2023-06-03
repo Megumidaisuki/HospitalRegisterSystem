@@ -15,7 +15,10 @@ import com.megumi.hospitalregistersystem.utils.TokenUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,26 +97,23 @@ public class DoctorServiceImpl implements DoctorService {
     public void save(Doctor doctor) {
         //加密
         doctor.setPassword(encrypt(doctor.getPassword()));
-
         doctorDao.save(doctor);
-
     }
 
     //更新医生信息
     @Override
     public void update(Doctor doctor) {
-
         doctorDao.update(doctor);
     }
 
-    //医生信息的分页模糊查询
-    @Override
-    public PageInfo<Doctor> page(DoctorPageRequest pageRequest) {
-        PageHelper.startPage(pageRequest.getCurrentPage(), pageRequest.getPageSize());
-        List<Doctor> doctors = doctorDao.queryByNameAndDepartment(pageRequest);
-        PageInfo<Doctor> pageInfo = new PageInfo<>(doctors);
-        return pageInfo;
-    }
+//    //医生信息的分页模糊查询
+//    @Override
+//    public PageInfo<Doctor> page(DoctorPageRequest pageRequest) {
+//        PageHelper.startPage(pageRequest.getCurrentPage(), pageRequest.getPageSize());
+//        List<Doctor> doctors = doctorDao.queryByNameAndDepartment(pageRequest);
+//        PageInfo<Doctor> pageInfo = new PageInfo<>(doctors);
+//        return pageInfo;
+//    }
 
     //展现医生的排班表
     @Override
@@ -131,9 +131,18 @@ public class DoctorServiceImpl implements DoctorService {
 
     //创建新的排班模板
     @Override
-    public void newTemplate(ArrangementTemplate arrangementType) {
-        doctorDao.newTemplate(arrangementType);
+    public void newTemplate(String doctorName, String typeName, String registerAmounts, String timeScope) {
+        String typeId = doctorDao.getTypeIdByName(doctorName, typeName, registerAmounts, timeScope);
+        doctorDao.newTemplate(doctorName,typeId,registerAmounts,timeScope);
     }
+
+    @Override
+    public List<RegisterMessage> getSpecialRegisterMessage() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        String doctorName = doctor.getName();
+        return doctorDao.getSpecialRegisterMessage(doctorName);
+    }
+
 
     //更新排班信息表
     @Override
@@ -204,20 +213,22 @@ public class DoctorServiceImpl implements DoctorService {
 
     //得到已挂号患者的信息
     @Override
-    public List<PatientMessage> getPatientMessage(Doctor doctor) {
+    public List<PatientMessage> getPatientMessage() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
         List<PatientMessage> messageList = doctorDao.getPatientMessage(doctor);
         return messageList;
     }
 
-    //将患者信息的失约次数加一
+
     @Override
-    public void updatePatientMessage(Patient patient) {
-        doctorDao.updatePatientMessage(patient);
+    public void updatePatientMessage(PatientMessage patientMessage) {
+        doctorDao.updatePatientMessage(patientMessage);
     }
 
     //得到该医生负责的历史挂号信息
     @Override
-    public List<RegisterMessage> getHistory(Doctor doctor) {
+    public List<RegisterMessage> getHistory() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
         List<RegisterMessage> messages = doctorDao.getRegisterMessageByName(doctor);
         return messages;
     }
@@ -229,6 +240,7 @@ public class DoctorServiceImpl implements DoctorService {
         newPassRequest.setNewPass(encrypt(newPassRequest.getNewPass()));
         doctorDao.updatePassword(newPassRequest);
     }
+
 
     //通过排班更新挂号类型
     @Override
@@ -247,6 +259,113 @@ public class DoctorServiceImpl implements DoctorService {
     public List<Doctor> findAll() {
         return doctorDao.findAll();
     }
+
+    @Override
+    public List<TypeMessage> getTypeMessage() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        List<TypeMessage> typeMessage = doctorDao.getTypeMessage(doctor);
+        return typeMessage;
+    }
+
+    @Override
+    public void addTypeMessage(TypeMessage typeMessage) {
+        doctorDao.addTypeMessage(typeMessage);
+    }
+
+    @Override
+    public void deleteTypeMessage(Integer id) {
+        doctorDao.deleteTypeMessage(id);
+    }
+
+    @Override
+    public Doctor getDoctor() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        return doctor;
+    }
+
+    @Override
+    public List<RegisterType> getAllRegisterType() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        return doctorDao.getAllRegisterType(doctor);
+    }
+
+    @Override
+    public void addRegisterType(String name,String date,String registerAmounts,String typeName,String timeScope) {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        //将registerType中的挂号匹配到type_id
+        Integer typeId =  doctorDao.getTypeIdByTypeName(typeName);
+        doctorDao.addRegisterType(name,date,registerAmounts,typeId,timeScope);
+    }
+
+    @Override
+    public void deleteRegisterType(Integer id) {
+        doctorDao.deleteRegisterType(id);
+    }
+
+    @Override
+    public List<RegisterType> getRegisterTypeByDate(String date) {
+        return doctorDao.getRegisterTypeByDate(date);
+    }
+
+    @Override
+    public List<RegisterType> getFirstStatusRegisterType() {
+        return doctorDao.getFirstStatusRegisterType();
+    }
+
+    @Override
+    public List<RegisterType> getSecondStatusRegisterType() {
+        return doctorDao.getSecondStatusRegisterType();
+    }
+
+    @Override
+    public List<RegisterType> getThirdStatusRegisterType() {
+        return doctorDao.getThirdStatusRegisterType();
+    }
+
+    @Override
+    public List<RegisterMessage> getFullRegisterMessage() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        return doctorDao.getFullRegisterMessage(doctor);
+    }
+
+    @Override
+    public List<RegisterMessage> getHistoryRegisterMessage(String patientName) {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        String doctorName = doctor.getName();
+        return doctorDao.getHistoryRegisterMessage(doctorName,patientName);
+    }
+
+    @Override
+    public void logout() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = request.getHeader("token");
+        token=null;
+    }
+
+    @Override
+    public List<RegisterMessage> getRegisterMessageOne() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        return doctorDao.getRegisterMessageOne(doctor);
+    }
+
+    @Override
+    public List<RegisterMessage> getRegisterMessageTwo() {
+        Doctor doctor = TokenUtils.getCurrentAdmin();
+        return doctorDao.getRegisterMessageTwo(doctor);
+    }
+
+    @Override
+    public void updateRegisterMessage(RegisterMessage registerMessage) {
+        doctorDao.updateRegisterMessage(registerMessage);
+    }
+
+    @Override
+    public void deleteRegisterMessage(Integer id) {
+        doctorDao.deleteRegisterMessage(id);
+    }
+
+
+
 
     //按天复制排班信息
     @Override

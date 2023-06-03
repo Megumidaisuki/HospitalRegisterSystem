@@ -15,4 +15,12 @@ public class RegisterMessage {
     private Integer orderStatus;
     private String patientName;
     private String doctorName;
+    private Long orderId;
+    private String diagnosis;
+    private String symptom;
+    private PatientMessage patientMessage;
+    private TypeMessage typeMessage;
+    private RegisterType registerType;
+    private String timeScope;
+    private String department;
 }

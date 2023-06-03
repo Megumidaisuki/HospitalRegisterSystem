@@ -10,7 +10,6 @@ public class Patient {
     private String name;
     private Integer gender;
     private Integer age;
-    private Integer phone;
-    private String email;
-    private Integer discredit_times;
+    private Long phone;
+    private Integer discreditTimes;
 }
